@@ -1,0 +1,31 @@
+<html lagn="ko" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+    <!--configFragment 선언-->
+    <th:block th:fragment="configFragment">
+
+          
+        <!-- 이 영역에 공통으로 사용할 css, js library를 선언한다. -->
+        <!--<link rel="stylesheet" th:href="@{/css/common/common.css}" >-->
+        <link rel="stylesheet" th:href="@{/css/common.css}">
+        <script th:src="@{/js/common.js}"></script>
+        <!--<script th:src="@{/js/common/common.js}"></script>-->
+		<link href="https://kendo.cdn.telerik.com/2023.1.117/styles/kendo.default-main.min.css" rel="stylesheet" />
+		
+		
+		<script src="https://code.jquery.com/jquery-1.12.3.min.js"></script>
+		
+		<!-- Add the Kendo library by either using the JAVASCRIPT MODULES -->
+		<script src="https://kendo.cdn.telerik.com/2023.1.117/mjs/kendo.all.js" type="module"></script>
+		
+		<!-- OR by using the BUNDLED JAVASCRIPT -->
+		<script src="https://kendo.cdn.telerik.com/2023.1.117/js/kendo.all.min.js"></script>
+		<!-- Content Page의 CSS fragment 삽입 -->
+		<th:block layout:fragment="css"></th:block>
+		
+		<!-- Content Page의 script fragment 삽입 -->
+		<th:block layout:fragment="script"></th:block>
+        
+    </th:block>
+</html>

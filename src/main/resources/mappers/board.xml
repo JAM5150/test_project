@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="board">
+	<select id="list" resultType="HashMap">
+		SELECT *
+		FROM TEST_TABLE1
+	</select>
+	
+	<select id="one" resultType="HashMap" parameterType="HashMap">
+		SELECT seq, conts, good_cnt, reg_id
+		FROM sts_board
+		WHERE seq=#{seq}
+	</select>
+	
+	<insert id="insert" parameterType="HashMap">
+		INSERT INTO sts_board
+		(conts, reg_id, reg_dt, mod_id, mod_dt)
+		VALUES (#{conts}, #{member_id},now(),#{member_id},now())
+	</insert>
+	
+	<update id="update" parameterType="HashMap">
+		UPDATE sts_board
+		SET
+			conts=#{conts}
+			, mod_id=#{member_id}
+			, mod_dt=now()
+		WHERE seq=#{seq}
+	</update>
+	
+	<delete id="delete" parameterType="HashMap">
+		DELETE FROM sts_board WHERE seq=#{seq}
+	</delete>
+</mapper>

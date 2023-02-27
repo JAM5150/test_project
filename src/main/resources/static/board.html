@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://kendo.cdn.telerik.com/2022.2.802/styles/kendo.default-main.min.css">
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<script src="https://kendo.cdn.telerik.com/2022.2.802/js/jquery.min.js"></script>
+<script src="https://kendo.cdn.telerik.com/2022.2.802/js/kendo.all.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+<script type="text/javascript">
+	$(function(){
+		$("#editDialog").dialog({ autoOpen: false });
+		$("#grid").kendoGrid({
+			columns : [
+				{ field : "seq"       , title : "번호"  }
+				, { field : "conts"   , title : "내용"  }
+				, { field : "reg_id"  , title : "작성자" }
+				, { field : "good_cnt", title : "좋아요" }
+			]
+			, selectable : "row"
+			, change : function(){
+				var selected = this.select();
+				var data = $("#grid").data("kendoGrid").dataItem(selected[0]);
+				
+				$.ajax({
+					url : "/board/" + data.seq
+					, method : "GET"
+					, dataType : "json"
+					, statusCode: {
+						417: function() {
+							alert( "내부 오류가 발생하였습니다." );
+						}
+					}
+				}).done(function(response, textStatus, jqXHR){
+					var f = document.editForm;
+					f.seq.value = response.result.seq;
+					f.conts.value = response.result.conts;
+					f.member_id.value = response.result.reg_id;
+					$("#editDialog").dialog("open").find(".delete").show();
+				});
+			}
+		});
+		doSearch(document.searchForm);
+	});
+	
+	function doSearch(f){
+		$.ajax({
+			url : "/board"
+			, method : "GET"
+			, data : $(f).serialize()
+			, dataType : "json"
+			, statusCode: {
+				417: function() {
+					alert( "내부 오류가 발생하였습니다." );
+				}
+			}
+		}).done(function(response, textStatus, jqXHR){
+			$("#grid").data("kendoGrid").setDataSource(response.result);
+		});
+
+		return false;
+	}
+	
+	function showEditDialog(){
+		var f = document.editForm;
+		f.reset();
+		f.seq.value = "";
+		$("#editDialog").dialog("open").find(".delete").hide();
+		return false;
+	}
+	
+	function doEdit(f){
+		if(f.conts.value == ""){
+			alert("내용을 입력하세요.");
+			return false;
+		}
+		
+		if(confirm("저장 하시겠습니까?") == false)
+			return false;
+		
+		var method = "POST";
+		var url = "/board"
+		if(f.seq.value != ""){
+			method = "PUT";
+			url = "/board/" + f.seq.value;
+		}
+		
+		$.ajax({
+			url : url
+			, method : method
+			, data : $(f).serialize()
+			, dataType : "json"
+			, statusCode: {
+				417: function() {
+					alert( "내부 오류가 발생하였습니다." );
+				}
+			}
+		}).done(function(response, textStatus, jqXHR){
+			document.searchForm.reset();
+			doSearch(document.searchForm);
+			$("#editDialog").dialog("close");
+		});
+		return false;
+	}
+	
+	function doDelete(){
+		if(confirm("삭제 하시겠습니까?") == false)
+			return false;
+		
+		var f = document.editForm;
+		
+		$.ajax({
+			url : "/board/" + f.seq.value
+			, method : "DELETE"
+			, dataType : "json"
+			, statusCode: {
+				417: function() {
+					alert( "내부 오류가 발생하였습니다." );
+				}
+			}
+		}).done(function(response, textStatus, jqXHR){
+			doSearch(document.searchForm);
+			$("#editDialog").dialog("close");
+		});
+		
+		return false;
+	}
+</script>
+<title>게시판</title>
+</head>
+<body>
+<h1>게시판</h1>
+<hr />
+<form name="searchForm" onsubmit="return doSearch(this);">
+	내용 : <input type="text" name="keyword" />
+	<input type="submit" value=" 검색 " />
+	<a href="#" onclick="return showEditDialog();">글쓰기</a>
+</form>
+<div id="grid"></div>
+<div id="editDialog" title="편집">
+	<form name="editForm" onsubmit="return doEdit(this);">
+		<input type="hidden" name="seq" />
+		아이디 : <input type="text" name="member_id" /><br />
+		내용 : <input type="text" name="conts" /><br />
+		<a href="#" onclick="return doDelete();"   class="delete">삭제</a>
+		<input type="submit" value=" 저장 " />
+	</form>
+</div>
+</body>
+</html>

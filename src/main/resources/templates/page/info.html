@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+	<head>
+		<style type="text/css">
+			#grid > div.k-toolbar.k-grid-toolbar > button {
+				border: none
+				
+			}
+		</style>
+	</head>
+    <!-- index.html 고유 CSS 추가 -->
+    <th:block layout:fragment="css">
+        <!--<link rel="stylesheet" th:href="@{/css/page/home.css}" >-->
+    </th:block>
+    
+    <!-- index.html 고유 스크립트 추가 -->
+    <th:block layout:fragment="script">
+       <!-- <script th:src="@{/js/page/home.js}"></script>-->
+    </th:block>
+
+    <div layout:fragment="content">
+
+		<script type="text/javascript">
+			$(function () {
+					$("#dialog").kendoWindow({
+						visible: false,
+						title: "메뉴 등록"
+					});
+
+					$("#grid").kendoGrid({
+						columns: [
+							{ field: "MENU_NAME", title: "Menu Name", width: 100},
+							{ hidden: true, field: "MENU_ID" },
+							{
+								command: [
+									{
+										name: "Edit",
+										click: function (e) {
+											e.preventDefault();
+											
+											var tr = $(e.target).closest("tr"); 
+											var data = this.dataItem(tr);
+											
+											restOne("/comm/menu/" + data.MENU_ID, {}, function (response) {
+												console.log(response.result);
+												let f = document.editForm;
+												f.MENU_ID.value = response.result[0].MENU_ID;
+												f.MENU_NAME.value = response.result[0].MENU_NAME;
+												f.MENU_DESC.value = response.result[0].MENU_DESC;
+												f.MENU_ID.readOnly = true;
+												
+												$("#dialog").data("kendoWindow").open().center().title("편집");
+											});
+										}
+									},
+									{
+										name: "Delete",
+										click: function (e) {
+											e.preventDefault();
+											
+											var tr = $(e.target).closest("tr"); 
+											var data = this.dataItem(tr);
+											
+											doDelete(data.MENU_ID);
+										}
+									}
+								],
+								width: 20
+							}
+						],
+						selectable: "row",
+						change: function (e) {
+							var selected = this.select();
+							var grid = $("#grid").data("kendoGrid");
+							var data = grid.dataItem(selected[0]);
+							// 선택한 메뉴 정보 조회
+							restOne("/comm/menu/" + data.MENU_ID, {}, function (response) {
+								$(location).attr("href", "/menu=" + data.MENU_ID);
+							});
+							grid.clearSelection();
+						}
+					});
+					
+					$("#plus_button").kendoButton({
+						click: function(e){
+							document.editForm.reset();
+							document.editForm.MENU_ID.readOnly = false;
+							$("#dialog").data("kendoWindow").open().center();
+						}
+					});
+					
+					doSearch();
+					$(".k-grid-header").hide();
+				});
+			
+			function openEditWindow(){
+				document.editForm.reset();
+				document.editForm.MENU_ID.readOnly = false;
+				$("#dialog").data("kendoWindow").open().center();
+			}
+			
+			function doSearch(){
+				restList("/comm/menu", {}, function(response){
+					$("#grid").data("kendoGrid").setDataSource(response.result);
+				});
+				return false;
+			}
+			
+			function doSave(f){
+				restInsert("/comm/menu", $(f).serialize(), function(response){
+					$("#dialog").data("kendoWindow").close();
+					doSearch();
+					
+				})
+				return false;
+			}
+			
+			function doDelete(id){
+				if(confirm("삭제 하시겠습니까?") == false){
+					return false;
+				}
+				restDelete("/comm/menu/" + id, {}, function(response){
+					doSearch();
+				})
+				return false;
+			}
+	   </script>
+	   <div class="content-box">
+			<div class="div-title">
+				<h1>Home</h1>
+				<!--<p>* 선택하면 해당 페이지로 이동합니다.</p>-->
+				<hr size="3" color="#4b86b4">
+			</div>
+			<div class="menu-section">
+				<!--<hr size="5" color="#63ace5" margin-botton="2rem">-->
+				<div>
+					<p>Menu List</p>
+					<div><button type="button" id="plus_button">등록</button></div>
+				</div>
+				<div class="grid-box">
+					<div id="grid"></div>
+				</div>
+				<div id="dialog">
+					<form name="editForm" onsubmit="return doSave(this);">
+						<div><p>Menu Name: </p><input id="menu_name" name="MENU_NAME"/></div>
+						<div><p>Menu ID: </p><input id="menu_id" name="MENU_ID"/></div>
+						<div><p>Menu 경로: </p><input id="menu_desc" name="MENU_DESC"/></div>
+						<div><button type="submit">등록</button></div>
+					</form>
+			</div>
+			</div>
+		</div>
+	</div>
+</html>

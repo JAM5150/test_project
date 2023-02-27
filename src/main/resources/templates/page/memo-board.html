@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+	<head>
+		<style>
+			#grid {
+				text-align: center;
+			}
+		</style>
+	</head>
+    <!-- index.html 고유 CSS 추가 -->
+    <th:block layout:fragment="css">
+        <!--<link rel="stylesheet" th:href="@{/css/page/home.css}" >-->
+    </th:block>
+    
+    <!-- index.html 고유 스크립트 추가 -->
+    <th:block layout:fragment="script">
+       <!-- <script th:src="@{/js/page/home.js}"></script>-->
+    </th:block>
+
+    <div layout:fragment="content">
+
+		<script type="text/javascript">
+			$(function () {
+					$("#dialog").kendoWindow({
+						visible: false,
+						title: "메모 등록"
+					})
+					
+					$("#grid").kendoGrid({
+						columns: [
+							{ field: "MEMO_NUM", title: "NO", width: 10},
+							{ field: "MEMO_TITLE", title: "TITLE", width: 40},
+							{ field: "REG_DATETIME", title: "등록 일자", width: 20},
+							{ field: "MOD_DATETIME", title: "수정 일자", width: 20}
+						],
+						change: function (e) {
+							var selected = this.select();
+							var grid = $("#grid").data("kendoGrid");
+							var data = grid.dataItem(selected[0]);
+							// 선택한 메뉴 정보 조회
+							restOne("/comm/memo-board/" + data.MEMO_NUM, {}, function (response) {
+								let f = document.editForm;
+								f.MEMO_TITLE.value = response.result[0].MEMO_TITLE;
+								f.MEMO_NUM.value = response.result[0].MEMO_NUM;
+								$(f).find("#textarea").data("kendoEditor").value(response.result[0].MEMO_CONTENT);
+								$("#dialog").data("kendoWindow").open().center().title("편집");
+								$("#deleteBtn").show();
+							});
+							grid.clearSelection();
+						}, 
+						selectable: "row"
+					});
+					
+					$("#plus_button").kendoButton({
+						click: function(e){
+							let f = document.editForm;
+							f.reset();
+							$(f).find("#textarea").data("kendoEditor").value("");
+							f.MEMO_NUM.value="";
+							$("#deleteBtn").hide();
+							$("#dialog").data("kendoWindow").open().center();
+						}
+					});
+					
+					$("#memo_title").kendoTextBox({
+						
+					})
+					
+					$("#textarea").kendoEditor({
+						
+					});
+					doSearch();
+				});
+			
+			function doSearch(){
+				restList("/comm/memo-board", {}, function(response){
+					$("#grid").data("kendoGrid").setDataSource(response.result);
+				})
+				
+				return false;
+			}
+			
+			function doSave(f){
+				if(f.MEMO_TITLE.value == ""){
+					alert("제목을 입력하세요");
+					f.MEMO_TITLE.focus();
+					return false;
+				}
+				if (f.MEMO_NUM.value == "") {
+					if (confirm("저장 하시겠습니까?") == false) {
+						return false;
+					}
+					restInsert("/comm/memo-board", $(f).serialize(), function (response) {
+						doSearch();
+						$("#dialog").data("kendoWindow").close();
+					})
+				}else{
+					if (confirm("수정한 내용을 저장 하시겠습니까?") == false) {
+						return false;
+					}
+					restUpdate("/comm/memo-board/" + f.MEMO_NUM.value, $(f).serialize(), function (response) {
+						doSearch();
+						$("#dialog").data("kendoWindow").close();
+					})
+				}
+				
+				return false;
+			}
+			
+			function doDelete(){
+				if(confirm("삭제 하시겠습니까?") == false){
+					return false;
+				}
+				let id = document.editForm.MEMO_NUM.value;
+				console.log(id);
+				restDelete("/comm/memo-board/" + id, {}, function(response){
+					doSearch();
+					$("#dialog").data("kendoWindow").close();
+				})
+				return false;
+			}
+			
+	   </script>
+	   <div class="content-box">
+			<div class="div-title">
+				<h1>Memo List</h1>
+				<p>* 간단한 메모 게시판</p>
+				<hr size="3" color="#4b86b4" >
+			</div>
+			<div class="search-box">
+				
+			</div>
+			<div class="grid-box">
+				<div><button type="button" id="plus_button">등록</button></div>
+				<div id="grid"></div>
+			</div>
+			<div id="dialog">
+				<form name="editForm" onsubmit="return doSave(this);">
+					<div style="width:100%; height:30px;"><p style="float: left; margin-top: 6px;">제목: </p><input style="float: right; width: 95%;"id="memo_title" name="MEMO_TITLE" /></div>
+					<br/>
+					<div style="margin-bottom: 16px;">
+						<p>내용: </p>
+						<textarea id="textarea" name="MEMO_CONTENT" ></textarea>
+					</div>
+					<input type="hidden" id="MEMO_NUM" />
+					<div class="edit-btns">
+						<button type="submit" class="edit-btn">저장</button>
+						<button type="button" class="edit-btn" id="deleteBtn" onclick="doDelete();">삭제</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</html>
