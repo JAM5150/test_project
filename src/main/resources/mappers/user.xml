@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="user">
+	<select id="list" resultType="HashMap">
+		SELECT *
+		FROM MENU_LIST
+	</select>
+	
+	<select id="one" resultType="HashMap" parameterType="HashMap">
+		SELECT *
+		FROM USER_DETAIL
+		WHERE USER_ID=#{USER_ID}
+		AND USER_PW=#{USER_PW}
+	</select>
+	
+	<insert id="insert" parameterType="HashMap">
+		INSERT INTO USER_DETAIL
+		(USER_ID, USER_NAME, USER_PW, USER_EMAIL,REG_DATETIME)
+		VALUES (#{USER_ID}, #{USER_NAME},#{USER_PW}, #{USER_EMAIL},CURRENT_DATE)
+	</insert>
+	
+	<update id="update" parameterType="HashMap">
+		UPDATE USER_DETAIL
+		SET
+			LAST_ACCESS_DATE=CURRENT_DATE
+		WHERE USER_ID=#{USER_ID}
+	</update>
+	
+	<delete id="delete" parameterType="HashMap">
+		DELETE FROM MENU_LIST WHERE MENU_ID=#{id}
+	</delete>
+	
+	<select id="duple" resultType="HashMap" parameterType="HashMap">
+		SELECT CASE WHEN COUNT(*) = 1 THEN 'Y'
+		ELSE 'N'
+		END AS duple
+		FROM USER_DETAIL
+		WHERE USER_ID=#{id}
+		<if test="type != null and type != ''">
+			AND USER_PW=#{USER_PW}
+		</if>
+	</select>
+</mapper>

@@ -21,19 +21,25 @@ import org.springframework.web.servlet.ModelAndView;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @RestController
 public class CommonController {
 	@Autowired
 	private SqlSession sqlSession;
 	
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(CommonController.class);
 	
 	//info 페이지 표시
 	@RequestMapping(value="/*")
-	public ModelAndView result() {
+	public ModelAndView result(HttpSession session, HttpServletResponse response) {
 		ModelAndView mav = new ModelAndView();
-		mav.setViewName("/page/info");
+		if(session.getAttribute("user") == null) {
+			mav.setViewName("/page/log-in");
+		}else {
+			mav.setViewName("/page/info");
+		}
 		return mav;
 	}
 	
@@ -56,6 +62,36 @@ public class CommonController {
 			return mav;
 			//return "redirect:result";
 		}
+	}
+	
+	//로그인
+	@PostMapping("/user/log-in")
+	public HashMap<String, Object> logIn(HttpServletRequest request, HttpServletResponse response) {
+		HashMap<String, String> paramMap = new HashMap<String, String>();
+		paramMap.put("USER_ID", request.getParameter("USER_ID"));
+		paramMap.put("USER_PW", request.getParameter("USER_PW"));
+		paramMap.put("type", "logIn");
+		paramMap.put("id", request.getParameter("USER_ID"));
+		HashMap<String, Object> result = new HashMap<String, Object>();
+		HttpSession session = request.getSession();
+		
+		HashMap<String, Object> userYn = new HashMap<String, Object>(); 
+		try {
+			result.put("duple", sqlSession.selectOne("user.duple", paramMap));
+			if("Y".equals(((HashMap<String, Object>) result.get("duple")).get("DUPLE"))){
+				session.setAttribute("user", sqlSession.selectOne("user.one", paramMap));
+				userYn.put("userYn", "Y");
+				return userYn;
+			}else {
+				response.setStatus(201);
+				userYn.put("userYn", "N");
+				return userYn;
+			}
+		} catch(Exception e) {
+			response.setStatus(417);
+			System.out.println(e.getMessage());
+		}
+		return userYn;
 	}
 	
 	/*
@@ -188,4 +224,29 @@ public class CommonController {
 		
 		return result;
 	}
+	
+	// 중복 키인지 조회
+		@GetMapping("/duple/{namespace}/{id}")
+		public HashMap<String, Object> duple(@PathVariable String namespace, @PathVariable String id, HttpServletRequest request,
+				HttpServletResponse response) {
+			HashMap<String, Object> result = new HashMap<String, Object>();
+
+			HashMap<String, String> paramMap = new HashMap<String, String>();
+			paramMap.put("keyword", request.getParameter("keyword"));
+			paramMap.put("id", id);
+
+			try {
+
+				result.put("result", sqlSession.selectList(namespace + ".duple", paramMap));
+				// 200 ok - GET, PUT 혹은 POST 요청에 대한 성공 응답 코드
+				response.setStatus(200);
+			} catch (Exception e) {
+				// 417 Expectation Failed - Expect 요청 헤더 필드로 요청한 예상이 서버에서 적당하지 않음을 알려 줄때
+				response.setStatus(417);
+				System.out.println(paramMap);
+				System.out.println(e.getMessage());
+			}
+
+			return result;
+		}
 }
