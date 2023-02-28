@@ -20,6 +20,10 @@
 				alert("관리자에게 문의하세요.");
 				return false;
 			})	
+			
+			$("#user_id").bind("focus keyup",function(e){
+				$(this).val(sliceByByte($(this).val(), 15));
+			})
 		});
 		
 		//로그인(Sign in)

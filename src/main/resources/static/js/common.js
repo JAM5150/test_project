@@ -74,3 +74,20 @@ function restDelete(url, paramap, fn){
 			, success: fn
 		})
 }
+
+
+function getByteLength(s, b, i, c){
+	for(b=i=0;c=s.charCodeAt(i++); b+=c>>11?3:c>>7?2:1);
+	return b;
+}
+
+//byte 계산 후 자르기
+function sliceByByte(str, maxByte) {
+	if(getByteLength(str) > maxByte){
+		alert("최대 길이 입니다");
+		str = str.substring(0, maxByte);
+	}
+    
+  	return str;
+    
+ }
