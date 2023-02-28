@@ -55,14 +55,29 @@ html, body {
 	z-index: 100;
 	font-family: 'NanumSquareRoundB';
 	color: white;
+	display: inline-block;
 }
 /* image icon - home */
 #header > #home{
 	background: url("./image/whitehome.png") no-repeat;
 	border: none;
 	cursor: pointer;
-	width: 4rem;
-	height: 4rem;
+	width: 2rem;
+	height: 2rem;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+#header > #user{
+	background: url("./image/whiteUser.png") no-repeat;
+	border: none;
+	cursor: pointer;
+	width: 2rem;
+	height: 2rem;
+	position: absolute;
+	top: 0;
+	right: 0;
 }
 
 #footer {
@@ -91,11 +106,17 @@ html, body {
 
 #header button{
     position: fixed;
-    left: 0;
-    top: auto;
     padding: 10px 10px;
     margin: 10px;
 
+}
+
+.user-detail {
+	width:100%;
+  	margin:auto;
+  	max-width:525px;
+  	min-height:670px;
+  	padding: 0;
 }
 
 /* 컨텐츠 영역 스타일 */
