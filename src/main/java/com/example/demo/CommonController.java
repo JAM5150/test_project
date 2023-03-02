@@ -35,8 +35,8 @@ public class CommonController {
 	@RequestMapping(value="/*")
 	public ModelAndView result(HttpSession session, HttpServletResponse response) {
 		ModelAndView mav = new ModelAndView();
-		if(session.getAttribute("user") == null) {
-			mav.setViewName("/page/log-in");
+		if(session.getAttribute("status") != "online") {
+			mav.setViewName("/page/login");
 		}else {
 			mav.setViewName("/page/info");
 		}
@@ -65,7 +65,7 @@ public class CommonController {
 	}
 	
 	//로그인
-	@PostMapping("/user/log-in")
+	@PostMapping("/user/login")
 	public HashMap<String, Object> logIn(HttpServletRequest request, HttpServletResponse response) {
 		HashMap<String, String> paramMap = new HashMap<String, String>();
 		paramMap.put("USER_ID", request.getParameter("USER_ID"));
@@ -80,6 +80,7 @@ public class CommonController {
 			result.put("duple", sqlSession.selectOne("user.duple", paramMap));
 			if("Y".equals(((HashMap<String, Object>) result.get("duple")).get("DUPLE"))){
 				session.setAttribute("user", sqlSession.selectOne("user.one", paramMap));
+				session.setAttribute("status", "online");
 				userYn.put("userYn", "Y");
 				return userYn;
 			}else {
