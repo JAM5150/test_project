@@ -18,6 +18,11 @@
 		$(function () {
 			$("#forgot").click(function(){
 				alert("관리자에게 문의하세요.");
+				console.log($("#check").attr("checked"));
+				$("#check").removeAttr("checked");
+				console.log($("#check").attr("checked"));
+				$("#check").attr("checked", "checked");
+				console.log($("#check").attr("checked"));
 				return false;
 			})	
 			
@@ -28,9 +33,14 @@
 		
 		//로그인(Sign in)
 		function doSign(f){
+			let keep_data = "N";
+			if($("#check").attr("checked") == "checked"){
+				keep_data = "Y";
+			}
 			let form = {
 				USER_ID: f.user_id.value,
-				USER_PW: f.user_pw.value
+				USER_PW: f.user_pw.value,
+				KEEP_DATA: keep_data
 			}
 			$.ajax({
 				url : "/user/login", 

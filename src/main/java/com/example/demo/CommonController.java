@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import java.io.IOException;
 import java.net.http.HttpClient.Redirect;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -35,10 +36,14 @@ public class CommonController {
 	@RequestMapping(value="/*")
 	public ModelAndView result(HttpSession session, HttpServletResponse response) {
 		ModelAndView mav = new ModelAndView();
+		HashMap<String, Object> result = new HashMap<String, Object>();
+		
 		if(session.getAttribute("status") != "online") {
 			mav.setViewName("/page/login");
 		}else {
+			result.put("result", sqlSession.update("user.update", session.getAttribute("user")));
 			mav.setViewName("/page/info");
+			
 		}
 		return mav;
 	}
@@ -81,6 +86,8 @@ public class CommonController {
 			if("Y".equals(((HashMap<String, Object>) result.get("duple")).get("DUPLE"))){
 				session.setAttribute("user", sqlSession.selectOne("user.one", paramMap));
 				session.setAttribute("status", "online");
+				session.setAttribute("keep_data", request.getParameter("KEEP_DATA"));
+				result.put("result", sqlSession.update("user.update", paramMap));
 				userYn.put("userYn", "Y");
 				return userYn;
 			}else {
@@ -95,6 +102,18 @@ public class CommonController {
 		return userYn;
 	}
 	
+	@RequestMapping(value="/user/logout")
+	public void logout(HttpSession session, HttpServletResponse response) {
+		session.setAttribute("status", "offline");
+		
+		String redirect_uri="/";
+		try {
+			response.sendRedirect(redirect_uri);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	/*
 	//다건 조회
 	@GetMapping("/board")
@@ -197,7 +216,7 @@ public class CommonController {
 			     paramMap.put(key, request.getParameter(key));
 			}
 			paramMap.put("id", id);
-			result.put("result", sqlSession.insert(namespace + ".update", paramMap));
+			result.put("result", sqlSession.update(namespace + ".update", paramMap));
 			System.out.println("\n" + paramMap + "\n" + result);
 			response.setStatus(201);
 		} catch(Exception e) {
