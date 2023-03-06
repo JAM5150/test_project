@@ -32,9 +32,11 @@
 
 					$("#grid").kendoGrid({
 						columns: [
-							{ field: "MENU_NAME", title: "Menu Name", width: 100},
+							{ field: "MENU_NAME", title: "Menu Name"},
 							{ hidden: true, field: "MENU_ID" },
 							{
+								field: "EDIT_TOOL",
+								title: "Edit Tool",
 								command: [
 									{
 										name: "Edit",
@@ -67,8 +69,7 @@
 											doDelete(data.MENU_ID);
 										}
 									}
-								],
-								width: 20
+								]
 							}
 						],
 						selectable: "row",
@@ -91,6 +92,17 @@
 							$("#dialog").data("kendoWindow").open().center();
 						}
 					});
+					let grid = $("#grid").data("kendoGrid");
+					if(USER_DATA.AUTH_TYPE == "ADMIN"){
+						$("#plus_button").show();
+						grid.showColumn("EDIT_TOOL");
+						grid.resizeColumn(grid.columns[0], 100);
+						grid.resizeColumn(grid.columns[2], 20);
+					}else{
+						$("#plus_button").hide();
+						
+						grid.hideColumn("EDIT_TOOL");
+					}
 					
 					doSearch();
 					$(".k-grid-header").hide();

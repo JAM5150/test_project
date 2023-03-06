@@ -17,8 +17,8 @@
 	
 	<insert id="insert" parameterType="HashMap">
 		INSERT INTO USER_DETAIL
-		(USER_ID, USER_NAME, USER_PW, USER_EMAIL,REG_DATETIME)
-		VALUES (#{USER_ID}, #{USER_NAME},#{USER_PW}, #{USER_EMAIL},CURRENT_DATE)
+		(USER_ID, USER_NAME, USER_PW, USER_EMAIL,REG_DATETIME, AUTH_TYPE)
+		VALUES (#{USER_ID}, #{USER_NAME},#{USER_PW}, #{USER_EMAIL},CURRENT_DATE, "USER")
 	</insert>
 	
 	<update id="update" parameterType="HashMap">
