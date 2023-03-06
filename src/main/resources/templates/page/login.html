@@ -16,15 +16,23 @@
 <div layout:fragment="content">
 	<script type="text/javascript">
 		$(function () {
+			let check = $("#check");
+			
+			if(USER_DATA != null){
+				let f = document.signForm;
+				f.user_id.value = USER_DATA.USER_ID;
+				f.user_pw.value = USER_DATA.USER_PW;
+			}else{
+				check.removeAttr("checked");
+			}
+			
+			
 			$("#forgot").click(function(){
 				alert("관리자에게 문의하세요.");
-				console.log($("#check").attr("checked"));
-				$("#check").removeAttr("checked");
-				console.log($("#check").attr("checked"));
-				$("#check").attr("checked", "checked");
-				console.log($("#check").attr("checked"));
+				
 				return false;
 			})	
+			
 			
 			$("#user_id").bind("focus keyup",function(e){
 				$(this).val(sliceByByte($(this).val(), 15));
@@ -34,7 +42,7 @@
 		//로그인(Sign in)
 		function doSign(f){
 			let keep_data = "N";
-			if($("#check").attr("checked") == "checked"){
+			if($("#check:checked").next().length == 1){
 				keep_data = "Y";
 			}
 			let form = {
@@ -153,7 +161,7 @@
         </div>
         <div class="group">
           <input id="check" type="checkbox" class="check" checked>
-          <label for="check"><span class="icon"></span> Keep me Signed in</label>
+          <label for="check"><span class="icon" id="check_icon"></span> Keep me Signed in</label>
         </div>
         <div class="group">
           <input type="submit" class="button" value="Sign In">

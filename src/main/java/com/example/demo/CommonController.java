@@ -51,13 +51,17 @@ public class CommonController {
 	//메뉴 id 를 받아와 해당 페이지 표시
 	@SuppressWarnings("unchecked")
 	@GetMapping("/menu={id}")
-	public ModelAndView viewResult(@PathVariable String id) {
+	public ModelAndView viewResult(@PathVariable String id, HttpSession session) {
 		ModelAndView mav = new ModelAndView();
 		HashMap<String, Object> result = new HashMap<String, Object>();
 		try {
-			result.put("result", sqlSession.selectOne("menu.one", id));
-			//System.out.println("\n");
-			mav.setViewName(((HashMap<String, Object>) result.get("result")).get("MENU_DESC").toString());
+			if(session.getAttribute("status") != "online") {
+				mav.setViewName("/page/login");
+			}else {
+				result.put("result", sqlSession.selectOne("menu.one", id));
+				// System.out.println("\n");
+				mav.setViewName(((HashMap<String, Object>) result.get("result")).get("MENU_DESC").toString());
+			}
 			return mav;
 		}catch(Exception e) {
 			//System.out.println("\nerror");
@@ -102,10 +106,13 @@ public class CommonController {
 		return userYn;
 	}
 	
+	//로그아웃
 	@RequestMapping(value="/user/logout")
 	public void logout(HttpSession session, HttpServletResponse response) {
 		session.setAttribute("status", "offline");
-		
+		if("N".equals(session.getAttribute("keep_data"))) {
+			session.invalidate();
+		}
 		String redirect_uri="/";
 		try {
 			response.sendRedirect(redirect_uri);
@@ -113,6 +120,23 @@ public class CommonController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	// 세션 정보
+	@PostMapping("/user/data")
+	public HashMap<String, Object> session(HttpServletRequest request, HttpServletResponse response) {
+		
+		HashMap<String, Object> result = new HashMap<String, Object>();
+		HttpSession session = request.getSession();
+
+		try {
+			result.put("result", session.getAttribute("user"));
+			
+		} catch (Exception e) {
+			response.setStatus(417);
+			System.out.println(e.getMessage());
+		}
+		return result;
 	}
 	/*
 	//다건 조회

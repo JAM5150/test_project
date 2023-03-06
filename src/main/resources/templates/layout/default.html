@@ -21,6 +21,27 @@
             content fragment 사용 
             현재 layout을 사용하는 content fragment의 내용을 삽입한다.
         -->
+        <script type="text/javascript">
+			var USER_DATA = null;
+			
+			$.ajax({
+				url : "/user/data", 
+				data: { },
+				method: "POST", 
+				dataType: "json",
+				statusCode: {
+					417: function(){
+						console.log("내부 오류.");
+					}
+				}, 
+				success: function(response) {
+					if(response != null && response != ''){
+						//비밀번호 데이터는 삭제 고려(보안)
+						USER_DATA = response.result;
+					}
+				}
+			});
+		</script>
         <div id="wrapper">
         <th:block layout:fragment="content"></th:block>
         </div>
