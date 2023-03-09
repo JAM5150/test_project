@@ -30,8 +30,6 @@ public class CommonController {
 	private SqlSession sqlSession;
 	
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(CommonController.class);
-	
 	//info 페이지 표시
 	@RequestMapping(value="/*")
 	public ModelAndView result(HttpSession session, HttpServletResponse response) {
