@@ -40,7 +40,7 @@ public class CommonController {
 			mav.setViewName("/page/login");
 		}else {
 			result.put("result", sqlSession.update("user.update", session.getAttribute("user")));
-			mav.setViewName("/page/info");
+			mav.setViewName("/page/index");
 			
 		}
 		return mav;
@@ -54,7 +54,7 @@ public class CommonController {
 		HashMap<String, Object> result = new HashMap<String, Object>();
 		try {
 			if(session.getAttribute("status") != "online") {
-				mav.setViewName("/page/login");
+				mav.setViewName("/page/index");
 			}else {
 				result.put("result", sqlSession.selectOne("menu.one", id));
 				// System.out.println("\n");
@@ -65,7 +65,7 @@ public class CommonController {
 			//System.out.println("\nerror");
 			//LOGGER.debug("Error Massage : ", e.getMessage());
 			//logger.info(e.getMessage());
-			mav.setViewName("/page/info");
+			mav.setViewName("/page/index");
 			return mav;
 			//return "redirect:result";
 		}
